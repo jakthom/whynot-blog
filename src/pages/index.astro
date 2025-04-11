@@ -1,0 +1,102 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>Hi</h1>
+			<p>Personal data systems ramblings live here.</p>
+			<p></p>
+			<strong><p>FMI:</p></strong>
+			<ul>
+				<li>
+					<a href="/blog">Writing</a>
+					<li>
+						<a href="https://bsky.app/profile/jakthom.bsky.social"
+							>Bluesky</a
+						>
+					</li>
+					<li>
+						<a href="https://www.linkedin.com/in/jake-thomas/"
+							>LinkedIn</a
+						>
+					</li>
+				</li>
+			</ul>
+			<strong><p>Talks, Panels, Case Studies, and Such:</p></strong>
+			<ul>
+				<li>
+					<a
+						href="https://www.datacouncil.ai/talks25/embedding-olap-everywhere-lessons-from-okta?hsLang=en"
+						><strong>[Data Council 2025]</strong> Embedding OLAP, Everywhere:
+						Lesson from Okta</a
+					>
+				</li>
+				<li>
+					<a href="https://www.youtube.com/watch?v=QV1rb5isg58"
+						><strong>[MotherDuck 2025]</strong> Can DuckDB Scale?</a
+					>
+				</li>
+				<li>
+					<a
+						href="https://motherduck.com/blog/small-data-sf-workshops-agenda/"
+						><strong>[Small Data SF 2024]</strong> Data Minimalism: Delivering
+						Business Value for the 99%</a
+					>
+				</li>
+				<li>
+					<a
+						href="https://www.datacouncil.ai/talks24/processing-trillions-of-records-at-okta-with-mini-serverless-databases?hsLang=en"
+						><strong>[Data Council 2024]</strong> Processing Trillions
+						of Records at Okta with Mini Serverless Databases</a
+					>
+				</li>
+				<li>
+					<a href="https://www.youtube.com/watch?v=s6iy0hqjcLk"
+						><strong>[dbt Coalesce 2023]</strong> Getting jiggy with
+						jsonschema: The power of contracts for building data systems
+					</a>
+				</li>
+				<li>
+					<a
+						href="https://www.snowflake.com/webinar/customer-webinars/show-me-your-architecture-how-okta-designed-their-cybersecurity-program-with-snowflake-2023-08-29/"
+						><strong>[Snowflake Summit 2023]</strong> How Okta Designed
+						their Cybersecurity Program with Snowflake
+					</a>
+				</li>
+				<li>
+					<a
+						href="https://json-schema.org/blog/posts/6-river-systems-case-study"
+						><strong>[JSON Schema 2023]</strong> How 6 River Systems
+						saves time and boosts collaboration with JSON Schema
+					</a>
+				</li>
+				<li>
+					<a
+						href="https://www.oreilly.com/library/view/snowflake-the-definitive/9781098103811/"
+						><strong>[O'Reilly 2022]</strong> Contributor to Snowflake:
+						The Definitive Guide
+					</a>
+				</li>
+				<li>
+					<a
+						href="https://www.oreilly.com/live-events/building-a-modern-data-platform-with-snowflake/0636920414971/"
+						><strong>[O'Reilly 2020-2022]</strong> Building a Modern
+						Data Platform with Snowflake
+					</a>
+				</li>
+			</ul>
+		</main>
+		<br /><br /><br /><br /><br /><br />
+		<Footer />
+	</body>
+</html>
