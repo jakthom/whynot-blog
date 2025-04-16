@@ -5,9 +5,7 @@ pubDate: 'Apr 10 2025'
 heroImage: '/img/blog/zero-infrastructure-iceberg.png'
 ---
 
-### Operating an Iceberg-based data lake shouldn't be so hard.
-
-### And (finally) it is not.
+Operating an Iceberg-based data lake shouldn't be so hard. And (finally) it is not.
 
 
 But wait... don't you need Spark or Some Java Thing™? How about background compaction? Manifest rewrites? Sourcing a new vendor only to use their (mostly-closed) catalog?
@@ -26,12 +24,12 @@ And it's dead-simple.
 
 #### Step 1: Create a S3 Table bucket, namespace, and table.
 
-Using `awscli` we'll create a `lake` bucket, a `stack overflow` namespace, and a `developer survey`
+This example uses `awscli` create a `lake` bucket, a `stack overflow` namespace, and a `developer survey` table, to then play around with [Stack Overflow's 2024 Developer Survey](https://survey.stackoverflow.co/2024/) data.
 
-**The table**
+**The table bucket:**
 
 ```
-    aws s3tables create-table-bucket --name jakes-lake
+    aws s3tables create-table-bucket --cli-input-json '{"name": "jakes-lake"}'
 
 
     {
@@ -40,11 +38,10 @@ Using `awscli` we'll create a `lake` bucket, a `stack overflow` namespace, and a
 
 ```
 
-**The namespace**
+**The namespace:**
 
 ```
-    aws s3tables create-namespace --table-bucket-arn arn:aws:s3tables:us-east-1:$YOUR-ACCOUNT$:bucket/jakes-lake --namespace stack_overflow
-
+    aws s3tables create-namespace --cli-input-json '{"tableBucketARN": "arn:aws:s3tables:us-east-1:$YOUR-ACCOUNT$:bucket/jakes-lake","namespace": ["stack_overflow"]}'
 
     {
         "tableBucketARN": "arn:aws:s3tables:us-east-1:$YOUR-ACCOUNT$:bucket/jakes-lake",
@@ -54,15 +51,20 @@ Using `awscli` we'll create a `lake` bucket, a `stack overflow` namespace, and a
     }
 ```
 
-**The table**
+**The table:**
 
 ```
-    aws s3tables create-table
+    aws s3tables create-table --cli-input-json '{ "tableBucketARN": "arn:aws:s3tables:us-east-1:$YOUR_ACCOUNT$:bucket/jakes-lake", "namespace": "stack_overflow", "name": "survey_results", "format": "ICEBERG", "metadata": { "iceberg": { "schema": { "fields": [ { "name": "ResponseId", "type": "int" }, { "name": "MainBranch", "type": "string" }, { "name": "Age", "type": "string" }, { "name": "Employment", "type": "string" }, { "name": "RemoteWork", "type": "string" }, { "name": "Check", "type": "string" }, { "name": "CodingActivities", "type": "string" }, { "name": "EdLevel", "type": "string" }, { "name": "LearnCode", "type": "string" }, { "name": "LearnCodeOnline", "type": "string" }, { "name": "TechDoc", "type": "string" }, { "name": "YearsCode", "type": "string" }, { "name": "YearsCodePro", "type": "string" }, { "name": "DevType", "type": "string" }, { "name": "OrgSize", "type": "string" }, { "name": "PurchaseInfluence", "type": "string" }, { "name": "BuyNewTool", "type": "string" }, { "name": "BuildvsBuy", "type": "string" }, { "name": "TechEndorse", "type": "string" }, { "name": "Country", "type": "string" }, { "name": "Currency", "type": "string" }, { "name": "CompTotal", "type": "string" }, { "name": "LanguageHaveWorkedWith", "type": "string" }, { "name": "LanguageWantToWorkWith", "type": "string" }, { "name": "LanguageAdmired", "type": "string" }, { "name": "DatabaseHaveWorkedWith", "type": "string" }, { "name": "DatabaseWantToWorkWith", "type": "string" }, { "name": "DatabaseAdmired", "type": "string" }, { "name": "PlatformHaveWorkedWith", "type": "string" }, { "name": "PlatformWantToWorkWith", "type": "string" }, { "name": "PlatformAdmired", "type": "string" }, { "name": "WebframeHaveWorkedWith", "type": "string" }, { "name": "WebframeWantToWorkWith", "type": "string" }, { "name": "WebframeAdmired", "type": "string" }, { "name": "EmbeddedHaveWorkedWith", "type": "string" }, { "name": "EmbeddedWantToWorkWith", "type": "string" }, { "name": "EmbeddedAdmired", "type": "string" }, { "name": "MiscTechHaveWorkedWith", "type": "string" }, { "name": "MiscTechWantToWorkWith", "type": "string" }, { "name": "MiscTechAdmired", "type": "string" }, { "name": "ToolsTechHaveWorkedWith", "type": "string" }, { "name": "ToolsTechWantToWorkWith", "type": "string" }, { "name": "ToolsTechAdmired", "type": "string" }, { "name": "NEWCollabToolsHaveWorkedWith", "type": "string" }, { "name": "NEWCollabToolsWantToWorkWith", "type": "string" }, { "name": "NEWCollabToolsAdmired", "type": "string" }, { "name": "OpSysPersonal", "type": "string" }, { "name": "OpSysProfessional", "type": "string" }, { "name": "OfficeStackAsyncHaveWorkedWith", "type": "string" }, { "name": "OfficeStackAsyncWantToWorkWith", "type": "string" }, { "name": "OfficeStackAsyncAdmired", "type": "string" }, { "name": "OfficeStackSyncHaveWorkedWith", "type": "string" }, { "name": "OfficeStackSyncWantToWorkWith", "type": "string" }, { "name": "OfficeStackSyncAdmired", "type": "string" }, { "name": "AISearchDevHaveWorkedWith", "type": "string" }, { "name": "AISearchDevWantToWorkWith", "type": "string" }, { "name": "AISearchDevAdmired", "type": "string" }, { "name": "NEWSOSites", "type": "string" }, { "name": "SOVisitFreq", "type": "string" }, { "name": "SOAccount", "type": "string" }, { "name": "SOPartFreq", "type": "string" }, { "name": "SOHow", "type": "string" }, { "name": "SOComm", "type": "string" }, { "name": "AISelect", "type": "string" }, { "name": "AISent", "type": "string" }, { "name": "AIBen", "type": "string" }, { "name": "AIAcc", "type": "string" }, { "name": "AIComplex", "type": "string" }, { "name": "AIToolCurrently", "type": "string" }, { "name": "AIToolInterested", "type": "string" }, { "name": "AIToolNot", "type": "string" }, { "name": "AINextMuch", "type": "string" }, { "name": "AINextNo", "type": "string" }, { "name": "AINextMore", "type": "string" }, { "name": "AINextLess", "type": "string" }, { "name": "AIThreat", "type": "string" }, { "name": "AIEthics", "type": "string" }, { "name": "AIChallenges", "type": "string" }, { "name": "TBranch", "type": "string" }, { "name": "ICorPM", "type": "string" }, { "name": "WorkExp", "type": "string" }, { "name": "Knowledge_1", "type": "string" }, { "name": "Knowledge_2", "type": "string" }, { "name": "Knowledge_3", "type": "string" }, { "name": "Knowledge_4", "type": "string" }, { "name": "Knowledge_5", "type": "string" }, { "name": "Knowledge_6", "type": "string" }, { "name": "Knowledge_7", "type": "string" }, { "name": "Knowledge_8", "type": "string" }, { "name": "Knowledge_9", "type": "string" }, { "name": "Frequency_1", "type": "string" }, { "name": "Frequency_2", "type": "string" }, { "name": "Frequency_3", "type": "string" }, { "name": "TimeSearching", "type": "string" }, { "name": "TimeAnswering", "type": "string" }, { "name": "Frustration", "type": "string" }, { "name": "ProfessionalTech", "type": "string" }, { "name": "ProfessionalCloud", "type": "string" }, { "name": "ProfessionalQuestion", "type": "string" }, { "name": "Industry", "type": "string" }, { "name": "JobSatPoints_1", "type": "string" }, { "name": "JobSatPoints_4", "type": "string" }, { "name": "JobSatPoints_5", "type": "string" }, { "name": "JobSatPoints_6", "type": "string" }, { "name": "JobSatPoints_7", "type": "string" }, { "name": "JobSatPoints_8", "type": "string" }, { "name": "JobSatPoints_9", "type": "string" }, { "name": "JobSatPoints_10", "type": "string" }, { "name": "JobSatPoints_11", "type": "string" }, { "name": "SurveyLength", "type": "string" }, { "name": "SurveyEase", "type": "string" }, { "name": "ConvertedCompYearly", "type": "string" }, { "name": "JobSat", "type": "string" } ] } } } }'
 
+
+    {
+    "tableARN": "arn:aws:s3tables:us-east-1:$YOUR_ACCOUNT:bucket/jakes-lake/table/de77f4ce-2b2a-4377-bedd-20668da01936",
+    "versionToken": "042c378a97092aabf2f6"
+}
 ```
 
 
-### Step 2: Grab some data with DuckDB and load it into the S3.... table.
+### Step 2: Grab the data with DuckDB and load it into the S3.... table.
 
 Using `python` with two dependencies: `pyiceberg` and `duckdb`:
 
