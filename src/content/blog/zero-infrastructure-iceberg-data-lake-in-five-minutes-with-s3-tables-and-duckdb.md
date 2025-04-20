@@ -1,34 +1,37 @@
 ---
 title: 'Zero-Infrastructure Iceberg in 5 Minutes'
-description: 'Zero-Infrastructure Iceberg in 5 Minutes'
 pubDate: 'Apr 10 2025'
+description: 'Zero-Infrastructure Iceberg in 5 Minutes'
 heroImage: '/img/blog/zero-infrastructure-iceberg.png'
 ---
 
-Operating an Iceberg-based data lake shouldn't be so hard. And (finally) it is not.
+Operating a low-tradeoff Iceberg data lake shouldn't be so ~hard~ impossible. And finally it is not.
 
 
-But wait... don't you need Spark or Some Java Thing™? How about background compaction? Manifest rewrites? Sourcing a new vendor only to use their (mostly-closed) catalog?
+But wait, don't you need Spark or Some Java Thing™? How about background compaction? Manifest rewrites? Sourcing a new vendor only to use their (mostly-closed) catalog?
 
-...***anything?!?***
+...*anything?!?*
 
 
 ### Nope.
 
-Thanks to [S3 Tables](https://aws.amazon.com/s3/features/tables/), [DuckDB](https://duckdb.org/), and [Arrow](https://arrow.apache.org/) (behind the scenes) you can build a low-cost, low-touch data lake on Iceberg.
+<br>
 
-**In five minutes, with no infrastructure, using a single vendor (AWS) that you probably already have.**
+Thanks to [S3 Tables](https://aws.amazon.com/s3/features/tables/), [DuckDB](https://duckdb.org/), and [Arrow](https://arrow.apache.org/) (behind the scenes) you can build a low-cost, low-touch Iceberg data lake.
+
+**In five minutes, with no infrastructure, using a single vendor that you probably already have (AWS).**
 
 
-And it's dead-simple.
+This post outlines the steps to create an Iceberg lake (using Python), register appropriate resources, use [DuckDB](https://duckdb.org/) to generate an Iceberg table for [2024 Stack Overflow Developer Survey](https://survey.stackoverflow.co/2024/) data, and read data from the Iceberg lake - again using DuckDB.
 
-#### Step 1: Create a S3 Table bucket, namespace, and table.
 
-This example uses `awscli` create a `lake` bucket, a `stack overflow` namespace, and a `developer survey` table, to then play around with [Stack Overflow's 2024 Developer Survey](https://survey.stackoverflow.co/2024/) data.
+<br>
 
-**The table bucket:**
+#### Step 1: Create the S3 Table Bucket
 
-```
+You'll need a recent version of [awscli](https://aws.amazon.com/cli/) for this:
+
+```bash
     aws s3tables create-table-bucket --cli-input-json '{"name": "jakes-lake"}'
 
 
@@ -38,89 +41,122 @@ This example uses `awscli` create a `lake` bucket, a `stack overflow` namespace,
 
 ```
 
-**The namespace:**
+<br>
 
-```
-    aws s3tables create-namespace --cli-input-json '{"tableBucketARN": "arn:aws:s3tables:us-east-1:$YOUR-ACCOUNT$:bucket/jakes-lake","namespace": ["stack_overflow"]}'
+#### Step 2: Load the catalog and create a namespace
 
-    {
-        "tableBucketARN": "arn:aws:s3tables:us-east-1:$YOUR-ACCOUNT$:bucket/jakes-lake",
-        "namespace": [
-            "stack_overflow"
-        ]
+Using [pyiceberg](https://py.iceberg.apache.org/) to load the `catalog` with table-bucket-specific `warehouse` is simple. It uses a combination of `glue` and `lake formation` behind the scenes.
+
+
+```python
+import duckdb
+from pyiceberg.catalog import Catalog, load_catalog
+
+
+catalog = load_catalog(
+    name="s3tablescatalog",
+    **{
+        "type":"rest",
+        "uri":"https://glue.us-east-1.amazonaws.com/iceberg",
+        "warehouse": "$YOUR-ACCOUNT:s3tablescatalog/jakes-lake",
+        "rest.sigv4-enabled": "true",
+        "rest.signing-name": "glue",
+        "rest.signing-region": "us-east-1",
     }
+)
+
+catalog.create_namespace("stack_overflow", {"description": "Stack Overflow data"})
 ```
 
-**The table:**
+<br>
 
-```
-    aws s3tables create-table --cli-input-json '{ "tableBucketARN": "arn:aws:s3tables:us-east-1:$YOUR_ACCOUNT$:bucket/jakes-lake", "namespace": "stack_overflow", "name": "survey_results", "format": "ICEBERG", "metadata": { "iceberg": { "schema": { "fields": [ { "name": "ResponseId", "type": "int" }, { "name": "MainBranch", "type": "string" }, { "name": "Age", "type": "string" }, { "name": "Employment", "type": "string" }, { "name": "RemoteWork", "type": "string" }, { "name": "Check", "type": "string" }, { "name": "CodingActivities", "type": "string" }, { "name": "EdLevel", "type": "string" }, { "name": "LearnCode", "type": "string" }, { "name": "LearnCodeOnline", "type": "string" }, { "name": "TechDoc", "type": "string" }, { "name": "YearsCode", "type": "string" }, { "name": "YearsCodePro", "type": "string" }, { "name": "DevType", "type": "string" }, { "name": "OrgSize", "type": "string" }, { "name": "PurchaseInfluence", "type": "string" }, { "name": "BuyNewTool", "type": "string" }, { "name": "BuildvsBuy", "type": "string" }, { "name": "TechEndorse", "type": "string" }, { "name": "Country", "type": "string" }, { "name": "Currency", "type": "string" }, { "name": "CompTotal", "type": "string" }, { "name": "LanguageHaveWorkedWith", "type": "string" }, { "name": "LanguageWantToWorkWith", "type": "string" }, { "name": "LanguageAdmired", "type": "string" }, { "name": "DatabaseHaveWorkedWith", "type": "string" }, { "name": "DatabaseWantToWorkWith", "type": "string" }, { "name": "DatabaseAdmired", "type": "string" }, { "name": "PlatformHaveWorkedWith", "type": "string" }, { "name": "PlatformWantToWorkWith", "type": "string" }, { "name": "PlatformAdmired", "type": "string" }, { "name": "WebframeHaveWorkedWith", "type": "string" }, { "name": "WebframeWantToWorkWith", "type": "string" }, { "name": "WebframeAdmired", "type": "string" }, { "name": "EmbeddedHaveWorkedWith", "type": "string" }, { "name": "EmbeddedWantToWorkWith", "type": "string" }, { "name": "EmbeddedAdmired", "type": "string" }, { "name": "MiscTechHaveWorkedWith", "type": "string" }, { "name": "MiscTechWantToWorkWith", "type": "string" }, { "name": "MiscTechAdmired", "type": "string" }, { "name": "ToolsTechHaveWorkedWith", "type": "string" }, { "name": "ToolsTechWantToWorkWith", "type": "string" }, { "name": "ToolsTechAdmired", "type": "string" }, { "name": "NEWCollabToolsHaveWorkedWith", "type": "string" }, { "name": "NEWCollabToolsWantToWorkWith", "type": "string" }, { "name": "NEWCollabToolsAdmired", "type": "string" }, { "name": "OpSysPersonal", "type": "string" }, { "name": "OpSysProfessional", "type": "string" }, { "name": "OfficeStackAsyncHaveWorkedWith", "type": "string" }, { "name": "OfficeStackAsyncWantToWorkWith", "type": "string" }, { "name": "OfficeStackAsyncAdmired", "type": "string" }, { "name": "OfficeStackSyncHaveWorkedWith", "type": "string" }, { "name": "OfficeStackSyncWantToWorkWith", "type": "string" }, { "name": "OfficeStackSyncAdmired", "type": "string" }, { "name": "AISearchDevHaveWorkedWith", "type": "string" }, { "name": "AISearchDevWantToWorkWith", "type": "string" }, { "name": "AISearchDevAdmired", "type": "string" }, { "name": "NEWSOSites", "type": "string" }, { "name": "SOVisitFreq", "type": "string" }, { "name": "SOAccount", "type": "string" }, { "name": "SOPartFreq", "type": "string" }, { "name": "SOHow", "type": "string" }, { "name": "SOComm", "type": "string" }, { "name": "AISelect", "type": "string" }, { "name": "AISent", "type": "string" }, { "name": "AIBen", "type": "string" }, { "name": "AIAcc", "type": "string" }, { "name": "AIComplex", "type": "string" }, { "name": "AIToolCurrently", "type": "string" }, { "name": "AIToolInterested", "type": "string" }, { "name": "AIToolNot", "type": "string" }, { "name": "AINextMuch", "type": "string" }, { "name": "AINextNo", "type": "string" }, { "name": "AINextMore", "type": "string" }, { "name": "AINextLess", "type": "string" }, { "name": "AIThreat", "type": "string" }, { "name": "AIEthics", "type": "string" }, { "name": "AIChallenges", "type": "string" }, { "name": "TBranch", "type": "string" }, { "name": "ICorPM", "type": "string" }, { "name": "WorkExp", "type": "string" }, { "name": "Knowledge_1", "type": "string" }, { "name": "Knowledge_2", "type": "string" }, { "name": "Knowledge_3", "type": "string" }, { "name": "Knowledge_4", "type": "string" }, { "name": "Knowledge_5", "type": "string" }, { "name": "Knowledge_6", "type": "string" }, { "name": "Knowledge_7", "type": "string" }, { "name": "Knowledge_8", "type": "string" }, { "name": "Knowledge_9", "type": "string" }, { "name": "Frequency_1", "type": "string" }, { "name": "Frequency_2", "type": "string" }, { "name": "Frequency_3", "type": "string" }, { "name": "TimeSearching", "type": "string" }, { "name": "TimeAnswering", "type": "string" }, { "name": "Frustration", "type": "string" }, { "name": "ProfessionalTech", "type": "string" }, { "name": "ProfessionalCloud", "type": "string" }, { "name": "ProfessionalQuestion", "type": "string" }, { "name": "Industry", "type": "string" }, { "name": "JobSatPoints_1", "type": "string" }, { "name": "JobSatPoints_4", "type": "string" }, { "name": "JobSatPoints_5", "type": "string" }, { "name": "JobSatPoints_6", "type": "string" }, { "name": "JobSatPoints_7", "type": "string" }, { "name": "JobSatPoints_8", "type": "string" }, { "name": "JobSatPoints_9", "type": "string" }, { "name": "JobSatPoints_10", "type": "string" }, { "name": "JobSatPoints_11", "type": "string" }, { "name": "SurveyLength", "type": "string" }, { "name": "SurveyEase", "type": "string" }, { "name": "ConvertedCompYearly", "type": "string" }, { "name": "JobSat", "type": "string" } ] } } } }'
+#### Step 3: Load data from a Cloudflare-hosted CSV to a local DuckDB table
 
-
-    {
-    "tableARN": "arn:aws:s3tables:us-east-1:$YOUR_ACCOUNT:bucket/jakes-lake/table/de77f4ce-2b2a-4377-bedd-20668da01936",
-    "versionToken": "042c378a97092aabf2f6"
-}
-```
+DuckDB will grab a remote csv and auto-discover its schema. Pretty neat:
 
 
-### Step 2: Grab the data with DuckDB and load it into the S3.... table.
+```python
+# Connect to the local DuckDB database
+d_conn = duckdb.connect(database="so.db")
 
-Using `python` with two dependencies: `pyiceberg` and `duckdb`:
+# Install prerequisites
+install_sql = """
+INSTALL aws;
+INSTALL httpfs;
+INSTALL iceberg;
+"""
+d_conn.execute(install_sql)
 
-```
-
-```
-
-### Step 3: Attach the S3 Table Catalog with DuckDB and query your data.
-
-Using `python`:
-
+# Load data from a CSV file sitting in a CDN
+d_conn.execute("create table results as select * from read_csv('survey-results.csv')")
 ```
 
+<br>
+
+#### Step 4: Use the local DuckDB table to create an Iceberg table in S3
+
+CSV type discovery gets better when used to create an Iceberg table with a single LOC:
+
+```python
+# Get the pyarrow schema
+schema = d_conn.execute("select * from results limit 1").fetch_arrow_table().schema
+
+# Use the schema to create an Iceberg table
+catalog.create_table(
+    identifier="stack_overflow.survey_results",
+    schema=schema,
+)
+
+# Ensure the table exists
+catalog.list_tables(namespace="stack_overflow")
+
+# Load the newly-created Iceberg table
+iceberg_tbl = catalog.load_table("stack_overflow.survey_results")
+
 ```
 
-Using `duckdb cli`:
+<br>
+
+#### Step 5: Append rows from local table to the remote Iceberg table
+
+This will run the specified query before iterating over result record batches, coercing them to a pyarrow table, and appending the table to the `stack_overflow.survey_results` Iceberg table:
+
+```python
+for record_batch in d_conn.execute("select * from results").fetch_record_batch():
+    batch = pa.Table.from_batches([record_batch])
+    print("appending record batch to iceberg table...")
+    iceberg_tbl.append(batch)
 
 ```
 
+<br>
+
+#### Step 6: Use DuckDB to attach the S3 Tables catalog and query data
+
+This example uses the [duckdb cli](https://duckdb.org/docs/stable/clients/cli/overview.html) to showcase the flexibilty of these tools.
+
+This is a database. Without the database infrastructure and cost.
+
+```sql
+
+-- Install prerequisites
+INSTALL aws;
+INSTALL httpfs;
+FORCE INSTALL iceberg FROM core_nightly;
+
+-- Create an AWS secret which uses the credentials chain
+CREATE SECRET (
+    TYPE s3,
+    PROVIDER credentials_chain
+);
+
+-- Attach the S3 Tables catalog
+ATTACH 'arn:aws:s3tables:us-east-1:878889713122:bucket/jakes-lake'
+    AS s3_tables_db (
+        TYPE iceberg,
+        ENDPOINT_TYPE s3_tables
+    );
+
 ```
 
 
-### That's it. It's really that easy.
-
-But there's still some friction.
-
-**Not all iceberg data types are cleanly mapped to DuckDB types (yet)...**
-
-For example if you create a `uuid` column in Iceberg and try to read it with DuckDB, you will get this:
-
-```
-BADNESS HERE
-```
-
-**Bouncing between `awscli`, `pyiceberg`, and `duckdb` could be streamlined.**
-
-For example... what if DuckDB could directly create a table bucket?
-
-And what if a `create schema` created a table bucket namespace?
-
-And `create table`.... (you get the idea)
-
-
-**Table Bucket ACL's...**
-
-Are definitely nice to have in the same policy management tooling as the rest of your infrastructure. Especially since table-level acl's exist and are easier that mentally mapping directories and paths to iam permissions.
-
-But important governance mechanisms like row-level policies? Or 
-
-**Views, oh sweet Views**
-
-Don't yet exist in the implementation. And materialized views are [just not in the spec](https://github.com/apache/iceberg/issues/10043).
-
-But you can create [DuckDB views](https://duckdb.org/docs/stable/sql/statements/create_view.html) using an attached [s3 table bucket](https://duckdb.org/2025/03/14/preview-amazon-s3-tables.html#reading-amazon-s3-tables-with-duckdb). So that's pretty damn cool.
-
-
-**I still have no idea if retention and lifecycle policies exist**
-
-If so, it would be pretty neat.
