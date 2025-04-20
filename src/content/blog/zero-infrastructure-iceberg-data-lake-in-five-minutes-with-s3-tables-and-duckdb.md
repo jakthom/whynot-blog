@@ -147,7 +147,7 @@ FORCE INSTALL iceberg FROM core_nightly;
 -- Create an AWS secret which uses the credentials chain
 CREATE SECRET (
     TYPE s3,
-    PROVIDER credentials_chain
+    PROVIDER credential_chain
 );
 
 -- Attach the S3 Tables catalog
@@ -158,5 +158,4 @@ ATTACH 'arn:aws:s3tables:us-east-1:878889713122:bucket/jakes-lake'
     );
 
 ```
-
 
