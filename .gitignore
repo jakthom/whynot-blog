@@ -6,3 +6,4 @@ dist/
 .netlify
 _site/
 .astro/
+scratch/**
