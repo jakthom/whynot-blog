@@ -172,7 +172,7 @@ iceberg_tbl = catalog.load_table("stack_overflow.survey_results")
 
 ```
 
-This works because by using DuckDB's [arrow](https://duckdb.org/2021/12/03/duck-arrow.html) integration, we are able to retain table structure and metadata:
+By using DuckDB's [arrow](https://duckdb.org/2021/12/03/duck-arrow.html) integration we are able to retain table structure and metadata:
 
 ```python
 In [9]:  tbl = d_conn.execute("select * from results limit 1").fetch_arrow_table()
@@ -296,7 +296,7 @@ convertedcompyearly: string
 jobsat: string
 ```
 
-Which can then be used directly, to create the Iceberg table:
+Which can then be used to create the Iceberg table:
 
 ```python
 catalog.create_table(
