@@ -466,9 +466,9 @@ D select responseid, age, employment, country from survey_results limit 25;
 
 ## In Conclusion
 
-I've been very slow to embrace Iceberg adoption due to too many system/org/vendor/functionality tradeoffs. Adoption has seemed vendor-locked at the catalog level, getting data in/out of a lake has seemed overly complex or bloated, and multi-engine or multi-lang support has seemed fragmented at best.
+I've been very slow to embrace Iceberg adoption due to too many system/org/vendor/functionality tradeoffs. Adoption has seemed vendor-locked at the catalog level, getting data in/out of a lake has seemed overly complex or bloated, and multi-engine/lang support has seemed fragmented at best.
 
-This exploration has changed that for me.
+This exploration has changed that for me. With [S3 Tables](https://aws.amazon.com/s3/features/tables/), [DuckDB](https://duckdb.org/), and a wee bit of Python you can build a highly-scalable, zero-infra, low-cost Iceberg data lake. And use whatever database engine you want in the future.
 
-#### And I think it's finally time.
+#### It's finally time.
 
