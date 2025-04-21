@@ -461,6 +461,9 @@ D select responseid, age, employment, country from survey_results limit 25;
 └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
+<br>
+<br>
+
 ## In Conclusion
 
 I've been very slow to embrace Iceberg adoption due to too many system/org/vendor/functionality tradeoffs. Adoption has seemed vendor-locked at the catalog level, getting data in/out of a lake has seemed overly complex or bloated, and multi-engine or multi-lang support has seemed fragmented at best.
