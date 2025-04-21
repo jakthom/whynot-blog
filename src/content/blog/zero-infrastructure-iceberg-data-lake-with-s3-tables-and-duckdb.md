@@ -316,8 +316,8 @@ catalog.create_table(
 This part is about as easy as it gets.
 
 1. Get all records from the origin table
-2. Iterate over record batches and coercing them to a pyarrow table
-3. Append pyarrow tbl to the `stack_overflow.survey_results` Iceberg table
+2. Iterate over record batches and coerce each batch to a pyarrow table
+3. Append said pyarrow table to the `stack_overflow.survey_results` Iceberg table
 
 Like this:
 
