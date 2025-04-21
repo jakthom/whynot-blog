@@ -43,6 +43,10 @@ You'll need a recent version of [awscli](https://aws.amazon.com/cli/) for this:
 
 <br>
 
+**Note:** See [this](https://aws.amazon.com/blogs/storage/access-data-in-amazon-s3-tables-using-pyiceberg-through-the-aws-glue-iceberg-rest-endpoint/) for recommended IAM policies.
+
+<br>
+
 #### Step 2: Load the catalog and create a namespace
 
 Loading the `catalog` and table-bucket-specific `warehouse` is simple with [pyiceberg](https://py.iceberg.apache.org/). It uses a combination of `glue` and `lake formation` behind the scenes.
